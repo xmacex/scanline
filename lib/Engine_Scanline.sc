@@ -47,6 +47,7 @@ Engine_Scanline : CroneEngine {
 		});
 
 		this.addCommand('scanline', "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", { |msg|
+		  msg.postln;
 			scanline.setn(0, msg);
 		});
 

@@ -8,25 +8,31 @@
 --
 -- by xmacex
 
-local WIDTH  = 128
-local HEIGHT = 64
-local scenes = {'path', 'flower', 'chemical_garden'}
-local shift  = 0
+local WIDTH   = 128
+local HEIGHT  = 64
+local scenes  = {}
+local k3shift = 0
 
 engine.name = 'Scanline'
 
--- TODO erm is screen.peek(32, 1, 128, 1) working?
-
 function init()
+    init_scenes()
     init_params()
     init_image()
     init_crow()
     norns.crow.add = init_crow
     print("init scanline")
 
-    -- engine.play(20)
     engine.play(1)
     redraw()
+end
+
+function init_scenes()
+  for i,k in ipairs(util.scandir(paths.this.lib)) do
+    if string.sub(k, -4) == ".png" then
+      table.insert(scenes, string.sub(k, 1, -5))
+    end
+  end
 end
 
 function init_params()
@@ -38,7 +44,6 @@ function init_params()
 
     params:add_number('line', "line", 1, HEIGHT, HEIGHT/2)
     params:set_action('line', function(v)
-        -- TODO I feel there is off-by-one somewhere here, does the screen start from 0?
         line = screen.peek(0, math.floor(v)-1, WIDTH, 1)
         line_n = {}
         for i=1, WIDTH do
@@ -46,7 +51,7 @@ function init_params()
         end
         engine.scanline(table.unpack(line_n))
         redraw()
-        end)
+    end)
 
     params:add_taper('rate', "rate", 0.01, HEIGHT, 1)
     params:set_action('rate', function(v)
@@ -56,8 +61,8 @@ function init_params()
     params:add_taper('lag', "lag", 0, 10, 1)
     params:set_action('lag', function(v)
         engine.lag(v)
-        end)
-    
+    end)
+
     params:add_option('scene', "scene", scenes)
     params:set_action('scene', function(v)
         local path = paths.this.lib..scenes[v]..".png"
@@ -67,7 +72,6 @@ function init_params()
 end
 
 function init_image()
-    -- image = screen.load_png(paths.this.lib.."istanbul.png")
     print(paths.this.lib..scenes[1]..".png")
     image = screen.load_png(paths.this.lib..scenes[1]..".png")
 end
@@ -93,27 +97,8 @@ end
 function redraw()
     screen.clear()
     draw_image()
-    -- draw_circles()
     draw_scanline()
     screen.update()
-end
-
-function draw_circles()
-    screen.aa(1)
-    screen.circle(HEIGHT/2, HEIGHT/2, HEIGHT/3)
-    screen.level(3)
-    screen.line_width(4)
-    screen.stroke()
-
-    screen.circle(20, HEIGHT/4, 5)
-    screen.level(8)
-    screen.line_width(3)
-    screen.stroke()
-
-    screen.circle(100, 55, 10)
-    screen.level(16)
-    screen.line_width(7)
-    screen.stroke()
 end
 
 function draw_image()
@@ -122,8 +107,8 @@ end
 
 function draw_scanline()
     screen.blend_mode('xor')
-    screen.level(1)
     screen.aa(0)
+    screen.level(1)
     screen.line_width(1)
     screen.move(1, params:get('line'))
     screen.line(WIDTH, params:get('line'))
@@ -142,7 +127,7 @@ function enc(n, d)
     elseif n == 2 then
         params:delta('line', d)
     elseif n == 3 then
-      if shift == 1 then
+      if k3shift == 1 then
         params:delta('rate', d/20)
       else
         params:delta('rate', d)
