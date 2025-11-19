@@ -1,6 +1,6 @@
 # Scanline
 
-Computer music.
+Computer music for video cultures.
 
 ![](scanline.gif)
 
