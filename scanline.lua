@@ -1,14 +1,17 @@
 ---Scanline
 --
 --
--- ............
 --
--- watch out for bad noise
---   learning norns SC
+-- ................................................................
+--
+--
+--
+-- by xmacex
 
 local WIDTH  = 128
 local HEIGHT = 64
-local scenes = {'path', 'istanbul'}
+local scenes = {'path', 'flower', 'chemical_garden'}
+local shift  = 0
 
 engine.name = 'Scanline'
 
@@ -18,7 +21,7 @@ function init()
     init_params()
     init_image()
     init_crow()
-    crow.add = init_crow
+    norns.crow.add = init_crow
     print("init scanline")
 
     -- engine.play(20)
@@ -27,10 +30,11 @@ function init()
 end
 
 function init_params()
-    params:add_taper('amp', "amp", 0.01, 2, 1)
+    params:add_control('amp', "amp", controlspec.AMP)
     params:set_action('amp', function(v)
         engine.amp(v)
     end)
+    params:set('amp', 0.2)
 
     params:add_number('line', "line", 1, HEIGHT, HEIGHT/2)
     params:set_action('line', function(v)
@@ -41,19 +45,24 @@ function init_params()
             table.insert(line_n, string.byte(line, i)/16)
         end
         engine.scanline(table.unpack(line_n))
-        engine.play(params:get('rate'))
         redraw()
         end)
 
-    params:add_taper('rate', "rate", 0.01, 2, 1)
+    params:add_taper('rate', "rate", 0.01, HEIGHT, 1)
     params:set_action('rate', function(v)
-        engine.rate(rate)
-        engine.play(v)
+        engine.rate(v)
     end)
+    
+    params:add_taper('lag', "lag", 0, 10, 1)
+    params:set_action('lag', function(v)
+        engine.lag(v)
+        end)
+    
     params:add_option('scene', "scene", scenes)
     params:set_action('scene', function(v)
         local path = paths.this.lib..scenes[v]..".png"
         image = screen.load_png(path)
+        redraw()
     end)
 end
 
@@ -121,25 +130,26 @@ function draw_scanline()
     screen.stroke()
 end
 
+function key(n, z)
+  if n == 3 then
+    shift = z
+  end
+end
+
 function enc(n, d)
     if n == 1 then
-        params:delta('amp', d)
+        params:delta('scene', d)
     elseif n == 2 then
         params:delta('line', d)
     elseif n == 3 then
+      if shift == 1 then
+        params:delta('rate', d/20)
+      else
         params:delta('rate', d)
+      end
     end
 end
 
 -- Local Variables:
 -- flycheck-luacheck-standards: ("lua51" "norns")
-
-
-
-
-
-
-
-
-
 -- End:
