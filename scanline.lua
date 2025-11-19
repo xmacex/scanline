@@ -11,7 +11,7 @@
 local WIDTH   = 128
 local HEIGHT  = 64
 local scenes  = {}
-local k3shift = 0
+local shift = 0
 
 engine.name = 'Scanline'
 
@@ -44,12 +44,7 @@ function init_params()
 
     params:add_number('line', "line", 1, HEIGHT, HEIGHT/2)
     params:set_action('line', function(v)
-        line = screen.peek(0, math.floor(v)-1, WIDTH, 1)
-        line_n = {}
-        for i=1, WIDTH do
-            table.insert(line_n, string.byte(line, i)/16)
-        end
-        engine.scanline(table.unpack(line_n))
+        scan_line(v)
         redraw()
     end)
 
@@ -67,6 +62,7 @@ function init_params()
     params:set_action('scene', function(v)
         local path = paths.this.lib..scenes[v]..".png"
         image = screen.load_png(path)
+        scan_line(math.floor(params:get('line'))-1)
         redraw()
     end)
 end
@@ -92,6 +88,15 @@ function init_crow()
             params:set('rate', val)
         end
     end
+end
+
+function scan_line(v)
+  local line = screen.peek(0, math.floor(v)-1, WIDTH, 1)
+  line_n = {}
+  for i=1, WIDTH do
+    table.insert(line_n, string.byte(line, i)/16)
+  end
+  engine.scanline(table.unpack(line_n))
 end
 
 function redraw()
@@ -127,7 +132,7 @@ function enc(n, d)
     elseif n == 2 then
         params:delta('line', d)
     elseif n == 3 then
-      if k3shift == 1 then
+      if shift == 1 then
         params:delta('rate', d/20)
       else
         params:delta('rate', d)
