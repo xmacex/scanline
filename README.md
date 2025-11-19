@@ -1,6 +1,6 @@
 # Scanline
 
-Computer music for video cultures.
+Computer music for screen cultures.
 
 ![](scanline.gif)
 
