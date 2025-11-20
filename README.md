@@ -9,3 +9,5 @@ Computer music for screen cultures.
 Place 128x64 pixel PNG images in `lib/`.
 
 ![](scanline-context.gif)
+
+This script is inspired by 20th century video art and [Sturmherta's *VRA*](https://www.sturmherta.com/) I saw at the Blaues Rauschen in Herne in 2022.
